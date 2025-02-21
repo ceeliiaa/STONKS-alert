@@ -1,0 +1,42 @@
+ObsID0945040134_SRCNUM56_EPN
+
+imgdisplay withimagefile=true imagefile=ObsID0945040134_SRCNUM56_EPN.img
+
+Source :
+- fk5 : 03:36:51.17 -28:19:50.4
+- Physical : 33682, 7655, 800
+
+Background :
+- Physical : 36714, 7910, 1200
+
+LIGHTCURVE (EPN 500 200 50 10 ok)
+
+evselect table=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits   energycolumn=PI   expression='#XMMEA_EP&&(PATTERN<=4)&&((X,Y) IN circle(33682, 7655, 800))&&(PI in [200:10000])'   withrateset=yes rateset='ObsID0945040134_SRCNUM56_EPN_t10_lightcurve_raw.lc'   timebinsize=10   maketimecolumn=yes makeratecolumn=yes  updateexposure=yes
+
+evselect table=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits   energycolumn=PI   expression='#XMMEA_EP&&(PATTERN<=4)&&((X,Y) IN circle(36714, 7910, 1200))&&(PI in [200:10000])'   withrateset=yes rateset='ObsID0945040134_SRCNUM56_EPN_t10_background_raw.lc'   timebinsize=10   maketimecolumn=yes makeratecolumn=yes  updateexposure=yes
+
+epiclccorr srctslist=ObsID0945040134_SRCNUM56_EPN_t10_lightcurve_raw.lc eventlist=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits outset=ObsID0945040134_SRCNUM56_EPN_t10_lccorr.lc     bkgtslist=ObsID0945040134_SRCNUM56_EPN_t10_background_raw.lc withbkgset=yes applyabsolutecorrections=yes
+
+dsplot table=ObsID0945040134_SRCNUM56_EPN_t10_lccorr.lc withx=yes x=TIME withy=yes y=RATE
+
+SPECTRUM (EPN ok)
+
+evselect table=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits withspectrumset=yes spectrumset=ObsID0945040134_SRCNUM56_EPN_source_spectrum.fits \
+   energycolumn=PI spectralbinsize=5 withspecranges=yes specchannelmin=0 specchannelmax=20479 \
+   expression='(FLAG==0) && (PATTERN<=4) && ((X,Y) IN circle(33682, 7655, 800))'
+
+evselect table=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits withspectrumset=yes spectrumset=ObsID0945040134_SRCNUM56_EPN_background_spectrum.fits \
+   energycolumn=PI spectralbinsize=5 withspecranges=yes specchannelmin=0 specchannelmax=20479 \
+   expression='(FLAG==0) && (PATTERN<=4) && ((X,Y) IN circle(36714, 7910, 1200))'
+
+ backscale spectrumset=ObsID0945040134_SRCNUM56_EPN_source_spectrum.fits badpixlocation=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits
+
+ backscale spectrumset=ObsID0945040134_SRCNUM56_EPN_background_spectrum.fits badpixlocation=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits
+
+rmfgen spectrumset=ObsID0945040134_SRCNUM56_EPN_source_spectrum.fits rmfset=ObsID0945040134_SRCNUM56_EPN.rmf
+
+arfgen spectrumset=ObsID0945040134_SRCNUM56_EPN_source_spectrum.fits arfset=ObsID0945040134_SRCNUM56_EPN.arf withrmfset=yes rmfset=ObsID0945040134_SRCNUM56_EPN.rmf \
+   badpixlocation=ObsID0945040134_SRCNUM56_EPN_ImagingEvts.fits detmaptype=psf
+
+specgroup spectrumset=ObsID0945040134_SRCNUM56_EPN_source_spectrum.fits mincounts=25 oversample=3 rmfset=ObsID0945040134_SRCNUM56_EPN.rmf \
+  arfset=ObsID0945040134_SRCNUM56_EPN.arf backgndset=ObsID0945040134_SRCNUM56_EPN_background_spectrum.fits groupedset=ObsID0945040134_SRCNUM56_EPN_spectrum_grp.fits
